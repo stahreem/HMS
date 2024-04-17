@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-main().catch(err => console.log(err));
+// main().catch(err => console.log(err));
 
-async function main() {
+const connectDB =  async () => {
     try {
         await mongoose.connect('mongodb://127.0.0.1:27017/hms');
         console.log("Server is connected to the database successfully");
@@ -12,4 +12,4 @@ async function main() {
         throw error; 
       }
 }
-module.exports = main
+module.exports = connectDB;

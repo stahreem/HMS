@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 
-const contestsSchema = new mongoose.Schema(
+const contestSchema = new mongoose.Schema(
   {
     contestID: {
       type: String,
       required: true,
       unique: true,
     },
-    contestName: {
+    contestName: {  //title 
       type: String,
       required: true,
       unique: true,
@@ -40,7 +40,9 @@ const contestsSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    points: {},
+    points: {
+      type: String
+    },
     status: {
       type: String,
       required: true,
@@ -73,3 +75,7 @@ const contestsSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+const Contest = mongoose.model("Contest", contestSchema)
+
+module.exports = Contest

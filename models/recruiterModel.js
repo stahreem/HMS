@@ -24,6 +24,15 @@ const recruiterSchema = new mongoose.Schema(
             unique: true,
             lowercase: true
         },
+        contestCreated:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Contest",
+        }
+    ],
+    refreshToken: {
+        type: String
+    }
     }, {timestamps: true}
 )
    
