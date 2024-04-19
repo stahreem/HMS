@@ -3,7 +3,7 @@ const router = express.Router();
 const recruiterController = require('../controllers/recruiterController')
 
 
-router.post('/signup', recruiterController)
+router.post('/signup', recruiterController.signupRecuiter)
 
 
 
