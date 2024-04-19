@@ -52,8 +52,38 @@ const signupRecuiter = async (req, res, next) => {
     }
 };
 
-const random = async (res, req ) => {
-    console.log("just random things ");
+const loginRecuiter = async (req, res, next  ) => {
+    try {
+       const {  email, password } = req.body;
+         console.log(req.body);  
+         if ( !email || !password ) {
+            return res.status(400).json({ message: "Please provide all required fields" });
+        }   
+        
+        const existingRecuiter =  await Recruiter.findOne( { email } )
+        if (!existingRecuiter || existingRecuiter.password !== password) {
+            const error = new apiError(
+                "Invalid credentials, could not log you in.",
+                401
+            );
+            return next(error);
+        }
+        res.status(200).json({ message: "login successful" });
+    } catch (error) {
+
+        console.log("Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });    
+    }
 }
 
-module.exports = { signupRecuiter , random}; 
+const profileRecuiter = async (req, res, next ) => {
+    try {
+        const { id } = req.params;
+        const recruiter = await Recruiter.findById(id);
+        res.status(200).json(recruiter)
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+module.exports = { signupRecuiter , loginRecuiter, profileRecuiter}; 
