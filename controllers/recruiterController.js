@@ -2,6 +2,9 @@ const asyncHandler = require('../utils/asyncHandler')
 const Recruiter = require('../models/recruiterModel');
 const apiError = require('../utils/apiError');
 const { validationResult } = require("express-validator");
+const multer = require('multer')
+const multerConfig = require('../utils/multer')
+
 //passport  
 const signupRecuiter = async (req, res, next) => {
     try {
@@ -15,7 +18,7 @@ const signupRecuiter = async (req, res, next) => {
         }
 
         const { firstName, lastName, gender, companyName, country, phoneNumber, email, password } = req.body;
-
+        console.log(req.body);
         // Check if any required field is missing
         if (!firstName || !lastName || !gender || !companyName || !country || !phoneNumber || !email || !password) {
             return res.status(400).json({ message: "Please provide all required fields" });
@@ -24,11 +27,16 @@ const signupRecuiter = async (req, res, next) => {
         // Check if the recruiter already exists
         const existedRecruiter = await Recruiter.findOne({ email });
         if (existedRecruiter) {
-            const error = new apiError(422, "User already exists, please login instead.");
+            // Highlighted change: Error message for duplicate email
+            const error = new apiError(
+                "User already exists with this email address, please login instead.",
+                422
+            );
             return next(error);
         }
 
-        const createRecruiter = new Recruiter({
+        // Create a new recruiter
+        const newRecruiter = new Recruiter({
             firstName,
             lastName,
             gender,
@@ -40,19 +48,16 @@ const signupRecuiter = async (req, res, next) => {
         });
 
         // Save the new recruiter
-            await createRecruiter.save();
-            res.status(200).json({ message: "Registration successful" });
-        
+        await newRecruiter.save();
+        res.status(200).json({ message: "Registration successful" });
         
     } catch (error) {
-        console.log(error);
         console.error("Error:", error);
         const errorMessage = "Signing up failed, please try again later.";
         const status = error instanceof apiError ? error.status || 500 : 500;
         res.status(status).json({ message: errorMessage });
     }
 };
-
 
 const loginRecuiter = async (req, res, next  ) => {
     try {
@@ -95,6 +100,7 @@ const profileRecuiter = async (req, res, next ) => {
 }
 
 const updateRecuiter = async (req, res, next ) => {
+    try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const error = new apiError(
@@ -103,11 +109,29 @@ const updateRecuiter = async (req, res, next ) => {
       );
       return next(error);
     }
+    multerConfig.single('image')(req, res, async (err) => {
+        if (err instanceof multer.MulterError) {
+          // Multer error handling
+          return res.status(400).json({ message: 'File upload error' });
+        } else if (err) {
+          // Other errors
+          return res.status(500).json({ message: 'Internal server error' });
+        }
   
+        // Get the uploaded image data from req.file
+        const imageData = req.file;
+  
+        // Check if an image was uploaded
+        if (!imageData) {
+          return res.status(400).json({ message: 'No image uploaded' });
+        }
+  
+        // Encode the image data to base64
+        const base64Image = imageData.buffer.toString('base64');
+    
     const { id } = req.params;
-    console.log(req.params);
-    try {
-        const { photo,
+    // console.log(req.params);
+        const { image,
             firstName,
             lastName,
             userName,
@@ -128,9 +152,9 @@ const updateRecuiter = async (req, res, next ) => {
             companyWebsite,
             description,
             contestCreated } = req.body;
-    
+            
         const recruiter = await Recruiter.findByIdAndUpdate(id, {
-            photo,
+            image: base64Image,
             firstName,
             lastName,
             userName,
@@ -152,13 +176,15 @@ const updateRecuiter = async (req, res, next ) => {
             description,
             contestCreated
         });
-    
+        
         if (!recruiter) {
             return next(new apiError(404, "User not found."));
         }
-    
         res.status(200).json({ message: "Update successful" });
-    } catch (err) {
+    });
+
+
+ } catch (err) {
         console.error("Error updating user:", err);
         next(new apiError(500, "Something went wrong, could not update user."));
     }
