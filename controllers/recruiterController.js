@@ -1,61 +1,62 @@
 const asyncHandler = require('../utils/asyncHandler')
 const Recruiter = require('../models/recruiterModel');
 const apiError = require('../utils/apiError');
-
+const { validationResult } = require("express-validator");
+//passport  
 const signupRecuiter = async (req, res, next) => {
     try {
-        const { name, email, phoneNumber ,companyName, companyEmail, companyWebsite , password } = req.body;
-        
-        // Check if any required field is missing
-        if (!name || !email || !phoneNumber || !companyName || !companyEmail || !companyWebsite || !password ) {
-            return res.status(400).json({ message: "Please provide all required fields" });
-        }      
-     
-        // check if the recruter existed or not 
-        const existedRecruiter = await Recruiter.findOne( { email } )
-
-        if ( existedRecruiter ) {
-            res.status(422).json({ message: "user already exist " });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
             const error = new apiError(
-              "User already exists, please login instead.",
-              422
+                "Invalid inputs passed, please check your data.",
+                422
             );
             return next(error);
-          }
+        }
 
+        const { firstName, lastName, gender, companyName, country, phoneNumber, email, password } = req.body;
+
+        // Check if any required field is missing
+        if (!firstName || !lastName || !gender || !companyName || !country || !phoneNumber || !email || !password) {
+            return res.status(400).json({ message: "Please provide all required fields" });
+        }
+
+        // Check if the recruiter already exists
+        const existedRecruiter = await Recruiter.findOne({ email });
+        if (existedRecruiter) {
+            const error = new apiError(422, "User already exists, please login instead.");
+            return next(error);
+        }
 
         const createRecruiter = new Recruiter({
-            name,
-            email,
-            phoneNumber,
+            firstName,
+            lastName,
+            gender,
             companyName,
-            companyEmail,
-            companyWebsite,
+            country,
+            phoneNumber,
+            email,
             password
         });
-        try {
+
+        // Save the new recruiter
             await createRecruiter.save();
-            
-        } catch (err) {
-            const error = new apiError(
-                "Signing up failed, please try again later.",
-                500
-              );
-              return next(error);
-        }
-          
-          res.status(200).json({ message: "Registration successful" });
-     
+            res.status(200).json({ message: "Registration successful" });
+        
+        
     } catch (error) {
-        console.log("Error:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        console.log(error);
+        console.error("Error:", error);
+        const errorMessage = "Signing up failed, please try again later.";
+        const status = error instanceof apiError ? error.status || 500 : 500;
+        res.status(status).json({ message: errorMessage });
     }
 };
+
 
 const loginRecuiter = async (req, res, next  ) => {
     try {
        const {  email, password } = req.body;
-         console.log(req.body);  
          if ( !email || !password ) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }   
@@ -81,9 +82,87 @@ const profileRecuiter = async (req, res, next ) => {
         const { id } = req.params;
         const recruiter = await Recruiter.findById(id);
         res.status(200).json(recruiter)
-    } catch (error) {
-        console.log("Error:", error);
+    } catch (err) {
+        console.log("Error:", err);
         res.status(500).json({ message: "Internal Server Error" });
+        const error = new apiError(
+            "cannot find user ",
+            500
+          );
+          return next(error);
+        
     }
 }
-module.exports = { signupRecuiter , loginRecuiter, profileRecuiter}; 
+
+const updateRecuiter = async (req, res, next ) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new apiError(
+        "Invalid inputs passed, please check your data.",
+        422
+      );
+      return next(error);
+    }
+  
+    const { id } = req.params;
+    console.log(req.params);
+    try {
+        const { photo,
+            firstName,
+            lastName,
+            userName,
+            dataOfBirth,
+            gender,
+            companyName,
+            country,
+            city,
+            state,
+            phoneNumber,
+            employID,
+            email,
+            password,
+            companySize,
+            companyEmail,
+            industry,
+            specialization,
+            companyWebsite,
+            description,
+            contestCreated } = req.body;
+    
+        const recruiter = await Recruiter.findByIdAndUpdate(id, {
+            photo,
+            firstName,
+            lastName,
+            userName,
+            dataOfBirth,
+            gender,
+            companyName,
+            country,
+            city,
+            state,
+            phoneNumber,
+            employID,
+            email,
+            password,
+            companySize,
+            companyEmail,
+            industry,
+            specialization,
+            companyWebsite,
+            description,
+            contestCreated
+        });
+    
+        if (!recruiter) {
+            return next(new apiError(404, "User not found."));
+        }
+    
+        res.status(200).json({ message: "Update successful" });
+    } catch (err) {
+        console.error("Error updating user:", err);
+        next(new apiError(500, "Something went wrong, could not update user."));
+    }
+    
+}
+
+module.exports = { signupRecuiter , loginRecuiter, profileRecuiter, updateRecuiter}; 

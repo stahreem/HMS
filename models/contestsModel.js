@@ -23,12 +23,12 @@ const contestSchema = new mongoose.Schema(
     domain: {
       type: String,
       required: true,
-    },
-    duration: {
+    }, 
+    duration: { //timings 
       type: String,
       required: true,
     },
-    participants: {
+    participants: { //array 
       type: String,
       required: true,
     },
@@ -53,10 +53,10 @@ const contestSchema = new mongoose.Schema(
       required: true,
     },
     totalParticipants: {
-      type: String,
+      type: Number,
       required: true,
     },
-    contestQuery: {
+    contestQuery: { //object
       type: String,
       required: true,
     },

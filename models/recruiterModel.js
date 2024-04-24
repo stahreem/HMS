@@ -2,9 +2,21 @@ const mongoose = require('mongoose')
 
 const recruiterSchema = new mongoose.Schema(
     {
-        name: {
+        photo:{
+            type:String,
+            // required: true,
+        },
+        firstName:{
             type:String,
             required: true,
+        },
+        lastName:{
+            type:String,
+            required: true,
+        },
+        userName: {
+            type:String,
+            // required: true,
             unique: true,
         },
         email: {
@@ -13,29 +25,70 @@ const recruiterSchema = new mongoose.Schema(
             unique: true,
             lowercase: true
         },
+        dataOfBirth:{
+                type: Date,
+                // required: true,
+        },
+        gender:{
+            type:String,
+            required: true,
+        },
+        
+            city:{
+                type:String,
+            // required: true,
+            },
+            state:{
+                type:String,
+            // required: true,
+            },
+            country:{
+                type:String,
+            required: true,
+            },
+        password:{
+            type:String,
+            required: true,
+        },
         phoneNumber: {
             type:Number,
             required: true,
         },
+        employID:{
+            type:String,
+            // required: true,
+        },  
+        // company details 
         companyName: {
             type:String,
             required: true,
             unique: true,
         },
+        companySize: { 
+            type:String,
+            // required: true,
+        },
+        industry: { 
+            type:String,
+            // required: true,
+        },
+        specialization: { 
+            type:String,
+            // required: true,
+        },
+        companyWebsite: { //not nessary 
+            type:String,
+            // required: true,
+        },
         companyEmail: {
             type:String,
-            required: true,
+            // required: true,
             unique: true,
             lowercase: true
         },
-        companyWebsite: {
+        description:{
             type:String,
-            required: true,
-        },
-
-        password:{
-            type:String,
-            required: true,
+            // required: true,
         },
         contestCreated:[
         {
