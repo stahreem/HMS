@@ -5,6 +5,18 @@ const { validationResult } = require("express-validator");
 const multer = require('multer')
 const multerConfig = require('../utils/multer')
 
+const getAllRecuiter = async (req, res, next) => {
+    try {
+        const allRecruiters = await Recruiter.find();
+        res.status(200).json(allRecruiters);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Something went wrong while fetching recruiters." });
+    }
+};
+
+
+
 
 const signupRecuiter = async (req, res, next) => {
     try {
@@ -201,4 +213,4 @@ const updateRecuiter = async (req, res, next) => {
     }
 };
 
-module.exports = { signupRecuiter , loginRecuiter, profileRecuiter, updateRecuiter}; 
+module.exports = { getAllRecuiter, signupRecuiter, loginRecuiter, profileRecuiter, updateRecuiter }; 
