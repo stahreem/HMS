@@ -11,10 +11,6 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({extended: true})) //middele ware
 
-
-app.get('/', (req, res) => {
-    res.send("Hello world ")
-})
 // routes import 
 const recruiterRoute = require('./routes/recruiterRoutes')
 

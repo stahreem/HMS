@@ -17,12 +17,12 @@ const recruiterSchema = new mongoose.Schema(
         userName: {
             type:String,
             // required: true,
-            unique: true,
+            // unique: true,
         },
         email: {
             type: String,
             required: true,
-            unique: true,
+            // unique: true,
             lowercase: true
         },
         dataOfBirth:{
@@ -62,7 +62,7 @@ const recruiterSchema = new mongoose.Schema(
         companyName: {
             type:String,
             required: true,
-            unique: true,
+            // unique: true,
         },
         companySize: { 
             type:String,
@@ -83,7 +83,7 @@ const recruiterSchema = new mongoose.Schema(
         companyEmail: {
             type:String,
             // required: true,
-            unique: true,
+            // unique: true,
             lowercase: true
         },
         description:{

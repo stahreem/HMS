@@ -5,7 +5,7 @@ const { validationResult } = require("express-validator");
 const multer = require('multer')
 const multerConfig = require('../utils/multer')
 
-//passport  
+
 const signupRecuiter = async (req, res, next) => {
     try {
         const errors = validationResult(req);
@@ -72,6 +72,7 @@ const loginRecuiter = async (req, res, next  ) => {
                 "Invalid credentials, could not log you in.",
                 401
             );
+            res.send({message:  "Invalid credentials, could not log you in." })
             return next(error);
         }
         res.status(200).json({ message: "login successful" });
@@ -99,96 +100,105 @@ const profileRecuiter = async (req, res, next ) => {
     }
 }
 
-const updateRecuiter = async (req, res, next ) => {
+const updateRecuiter = async (req, res, next) => {
     try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const error = new apiError(
-        "Invalid inputs passed, please check your data.",
-        422
-      );
-      return next(error);
-    }
-    multerConfig.single('image')(req, res, async (err) => {
-        if (err instanceof multer.MulterError) {
-          // Multer error handling
-          return res.status(400).json({ message: 'File upload error' });
-        } else if (err) {
-          // Other errors
-          return res.status(500).json({ message: 'Internal server error' });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const error = new apiError(
+                "Invalid inputs passed, please check your data.",
+                422
+            );
+            return next(error);
         }
-  
-        // Get the uploaded image data from req.file
-        const imageData = req.file;
-  
-        // Check if an image was uploaded
-        if (!imageData) {
-          return res.status(400).json({ message: 'No image uploaded' });
-        }
-  
-        // Encode the image data to base64
-        const base64Image = imageData.buffer.toString('base64');
-    
-    const { id } = req.params;
-    // console.log(req.params);
-        const { image,
-            firstName,
-            lastName,
-            userName,
-            dataOfBirth,
-            gender,
-            companyName,
-            country,
-            city,
-            state,
-            phoneNumber,
-            employID,
-            email,
-            password,
-            companySize,
-            companyEmail,
-            industry,
-            specialization,
-            companyWebsite,
-            description,
-            contestCreated } = req.body;
-            
-        const recruiter = await Recruiter.findByIdAndUpdate(id, {
-            image: base64Image,
-            firstName,
-            lastName,
-            userName,
-            dataOfBirth,
-            gender,
-            companyName,
-            country,
-            city,
-            state,
-            phoneNumber,
-            employID,
-            email,
-            password,
-            companySize,
-            companyEmail,
-            industry,
-            specialization,
-            companyWebsite,
-            description,
-            contestCreated
+
+        multerConfig.single('image')(req, res, async (err) => {
+            if (err instanceof multer.MulterError) {
+                // Multer error handling
+                return res.status(400).json({ message: 'File upload error' });
+            } else if (err) {
+                // Other errors
+                return res.status(500).json({ message: 'Internal server error' });
+            }
+
+            // Get the uploaded image data from req.file
+            const imageData = req.file;
+            let base64Image = null;
+
+            // Check if an image was uploaded
+            if (imageData) {
+                // Encode the image data to base64
+                base64Image = imageData.buffer.toString('base64');
+            }
+
+            const { id } = req.params;
+
+            // Extract other properties from the request body
+            const {
+                firstName,
+                lastName,
+                userName,
+                dataOfBirth,
+                gender,
+                companyName,
+                country,
+                city,
+                state,
+                phoneNumber,
+                employID,
+                email,
+                password,
+                companySize,
+                companyEmail,
+                industry,
+                specialization,
+                companyWebsite,
+                description,
+                contestCreated
+            } = req.body;
+
+            // Update the recruiter
+            const updatedRecruiter = await Recruiter.findByIdAndUpdate(id, {
+                $set: {
+                    image: base64Image,
+                    firstName,
+                    lastName,
+                    userName,
+                    dataOfBirth,
+                    gender,
+                    companyName,
+                    country,
+                    city,
+                    state,
+                    phoneNumber,
+                    employID,
+                    email,
+                    password,
+                    companySize,
+                    companyEmail,
+                    industry,
+                    specialization,
+                    companyWebsite,
+                    description,
+                    contestCreated
+                }
+            });
+
+            if (!updatedRecruiter) {
+                return next(new apiError(404, "User not found."));
+            }
+
+            // Check if an image was uploaded
+            // if (!imageData) {
+            //     return res.status(400).json({ message: 'No image uploaded' });
+            // }
+
+            res.status(200).json({ message: "Update successful" });
         });
-        
-        if (!recruiter) {
-            return next(new apiError(404, "User not found."));
-        }
-        res.status(200).json({ message: "Update successful" });
-    });
 
-
- } catch (err) {
+    } catch (err) {
         console.error("Error updating user:", err);
         next(new apiError(500, "Something went wrong, could not update user."));
     }
-    
-}
+};
 
 module.exports = { signupRecuiter , loginRecuiter, profileRecuiter, updateRecuiter}; 
