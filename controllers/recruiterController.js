@@ -5,6 +5,8 @@ const { validationResult } = require("express-validator");
 const multer = require('multer')
 const multerConfig = require('../utils/multer')
 
+// get all recuiter controller
+
 const getAllRecuiter = async (req, res, next) => {
     try {
         const allRecruiters = await Recruiter.find();
@@ -15,8 +17,7 @@ const getAllRecuiter = async (req, res, next) => {
     }
 };
 
-
-
+// signup recuiter controller
 
 const signupRecuiter = async (req, res, next) => {
     try {
@@ -71,6 +72,8 @@ const signupRecuiter = async (req, res, next) => {
     }
 };
 
+// login recuiter controller
+
 const loginRecuiter = async (req, res, next  ) => {
     try {
        const {  email, password } = req.body;
@@ -95,6 +98,8 @@ const loginRecuiter = async (req, res, next  ) => {
     }
 }
 
+// dashbord of recuiter controller
+
 const profileRecuiter = async (req, res, next ) => {
     try {
         const { id } = req.params;
@@ -111,6 +116,8 @@ const profileRecuiter = async (req, res, next ) => {
         
     }
 }
+
+// update recuiter controller
 
 const updateRecuiter = async (req, res, next) => {
     try {

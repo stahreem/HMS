@@ -28,10 +28,10 @@ const contestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    participants: { //array 
-      type: String,
-      required: true,
-    },
+    participants:[ { //array 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Participant"
+    }],
     startDate: {
       type: Date,
       required: true,
